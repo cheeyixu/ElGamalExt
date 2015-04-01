@@ -12,8 +12,8 @@ public class Test
     public static void Main()
     {
         //TestTextEncryption();
-        //TestMultiplication_Batch();
-        PerformanceTest();
+        TestMultiplication_Batch();
+        //PerformanceTest();
         return;
     }
 
@@ -132,16 +132,37 @@ public class Test
                 if (dec_c != ab_result)
                 {
                     error_counter++;
-                    Console.WriteLine("Failure #{0}", error_counter);
-                    Console.WriteLine("Key = {0}", PrettifyXML(parametersXML));
+                    Console.WriteLine("----------Failure #{0}", error_counter);
+                    //Console.WriteLine("Key = {0}", PrettifyXML(parametersXML));
                     Console.WriteLine("Encrypted: {0} * {1} = {2}", dec_a.ToString(), dec_b.ToString(), dec_c.ToString());
                     Console.WriteLine("Plaintext: {0} * {1} = {2}", a.ToString(), b.ToString(), ab_result.ToString());
+                    Console.WriteLine();
+                    Console.WriteLine("Re-run encryption with same key and numbers..");
+                    Rerun_SameNumberKey(encryptAlgorithm, decryptAlgorithm, a, b);
                     Console.WriteLine();
                 }
             }
             Console.WriteLine("There are {0}/50 cases that do not pass the test", error_counter);
             Console.WriteLine();
         }
+    }
+
+    public static void Rerun_SameNumberKey(ElGamal encryptAlgorithm, ElGamal decryptAlgorithm,
+                                            BigInteger a, BigInteger b)
+    {
+        var a_bytes = encryptAlgorithm.EncryptData(a.getBytes());
+        var b_bytes = encryptAlgorithm.EncryptData(b.getBytes());
+
+        var c_bytes = encryptAlgorithm.Multiply(a_bytes, b_bytes);
+
+        var dec_c = new BigInteger(decryptAlgorithm.DecryptData(c_bytes));
+        var dec_a = new BigInteger(decryptAlgorithm.DecryptData(a_bytes));
+        var dec_b = new BigInteger(decryptAlgorithm.DecryptData(b_bytes));
+
+        var ab_result = a * b;
+
+        Console.WriteLine("Encrypted: {0} * {1} = {2}", dec_a.ToString(), dec_b.ToString(), dec_c.ToString());
+        Console.WriteLine("Plaintext: {0} * {1} = {2}", a.ToString(), b.ToString(), ab_result.ToString());
     }
 
     public static void PerformanceTest()
